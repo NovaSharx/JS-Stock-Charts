@@ -14,13 +14,13 @@ async function main() {
 
     let jsonResponse = await response.json()
     
-    // const {GME, MSFT, DIS, BTNX} = jsonResponse
+    // const {GME, MSFT, DIS, BNTX} = jsonResponse
     const {GME, MSFT, DIS, BNTX} = mockData
     const stocks = [GME, MSFT, DIS, BNTX] 
 
     stocks.forEach(stock => stock.values.reverse())
 
-    console.log(stocks)
+    // console.log(stocks)
 
     new Chart(timeChartCanvas.getContext('2d'), {
         type: 'line',
@@ -50,6 +50,19 @@ async function main() {
         }
     });
 
+    new Chart(averagePriceChartCanvas.getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: stocks.map(stock => stock.meta.symbol),
+            datasets: [{
+                label: 'Highest',
+                data: stocks.map(stock => getAverage(stock.values)),
+                backgroundColor: stocks.map(stock => getColor(stock.meta.symbol)),
+                borderColor: stocks.map(stock => getColor(stock.meta.symbol))
+            }]
+        }
+    });
+
     function getColor (stock) {
         if (stock === 'GME') {
             return 'rgba(61, 161, 61, 0.7)'
@@ -68,9 +81,18 @@ async function main() {
     function getHighest(values) {
         let highest = 0
         values.forEach(value => {
-            if (value.high > highest) {highest = value.high}
+            if (parseFloat(value.high) > highest) {highest = parseFloat(value.high)}
         })
         return highest
+    }
+
+    function getAverage(values) {
+        let sum = 0
+        values.forEach(value => {
+            sum += parseFloat(value.high)
+        })
+        let average = sum/values.length
+        return average
     }
 
 }
